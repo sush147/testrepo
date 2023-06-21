@@ -1,0 +1,43 @@
+name: Continous Integration NRT
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Generate build number
+        uses: onyxmueller/build-tag-number@v1
+        with:
+          token: ${{secrets.github_token}}        
+      - name: Print new build number
+        run: echo "Build number is $BUILD_NUMBER"
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+
+      - name: Build with Maven
+        run: mvn -B package --file connectors/ssi/nrt/ssi-client/pom.xml
+      
+      - name: Build & push Docker image
+        run: |
+          echo "Build Docker image"
+          docker build -t NRT:${{ github.sha }} -f path/to/Dockerfile 
+          echo "Log in to Docker registry"
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          echo "Pushing Docker image"
+          docker push NRT:${{ github.sha }}
+      
+      
