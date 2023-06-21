@@ -3,10 +3,10 @@ name: Continous Integration NRT
 on:
   push:
     branches:
-      - Deployment
+      - main
   pull_request:
     branches:
-      - Deployment
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
